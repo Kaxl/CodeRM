@@ -1,5 +1,9 @@
+package CodeRM;
+
+import Utilities.ParsePGM;
+
+import java.io.*;
 import java.math.BigInteger;
-import java.util.Random;
 
 /**
  * Class to implement the Reed-Muller code (RM(1, r) -> First order, length r).
@@ -100,6 +104,66 @@ public class ReedMuller {
     }
 
     /**
+     * Encode a file.
+     *
+     * Run overs each value of the PGM image.
+     * Each value is separated by a space.
+     *
+     * @param filename  The filename of the image to encode.
+     * @return  The file containing the encoded image.
+     */
+    public File encode(String filename) {
+        String header = ParsePGM.readHeader(filename) ;
+        String data = ParsePGM.readData(filename);
+        String output = "";
+        File newFile = new File(filename + "_encoded");
+        newFile.delete();
+
+        for (String s : data.split(" ")) {
+            // Exclude whitespaces
+            if (s.trim().length() > 0) {
+                BigInteger word = new BigInteger(s);
+                output += this.encode(word).toString();
+                output += " ";
+            }
+        }
+        // Write the header and the encoded data into the new file.
+        ParsePGM.writeString(newFile, header);
+        ParsePGM.writeString(newFile, output);
+        return newFile;
+    }
+
+    /**
+     * Decode a file.
+     *
+     * Run overs each values of the encoded file
+     * and decodes them.
+     *
+     * @param filename The file to decode.
+     * @return The decoded file.
+     */
+    public File decode(String filename) {
+        String header = ParsePGM.readHeader(filename) ;
+        String data = ParsePGM.readData(filename);
+        String output = "";
+        File newFile = new File(filename + "_decoded");
+        newFile.delete();
+
+        for (String s : data.split(" ")) {
+            // Exclude whitespaces
+            if (s.trim().length() > 0) {
+                BigInteger word = new BigInteger(s.trim());
+                output += this.decode(word).toString();
+                output += " ";
+            }
+        }
+        // Write the header and the encoded data into the new file.
+        ParsePGM.writeString(newFile, header);
+        ParsePGM.writeString(newFile, output);
+        return newFile;
+    }
+
+    /**
      * Decode an encoded word.
      *
      * We check the first bit (at the left) of the coded word.
@@ -128,14 +192,13 @@ public class ReedMuller {
         return word;
     }
 
-    public
 
     public static void main(String[] args) {
-        int r = 3;
+        int r = 5;
         ReedMuller rm = new ReedMuller(r);
 
         // Encoding
-        BigInteger word = new BigInteger("13");
+        BigInteger word = new BigInteger("2");
         BigInteger code = rm.encode(word);
 
         System.out.println("Word : " + word.toString(2) + " Code : " + code.toString(2));
@@ -145,6 +208,9 @@ public class ReedMuller {
         word = rm.decode(code);
 
         System.out.println("Code : " + code.toString(2) + " Word : " + word.toString(2));
+
+        File fEncode = rm.encode("lena_128x128_64.pgm");
+        File fDecode = rm.decode(fEncode.getName());
     }
 
 }
