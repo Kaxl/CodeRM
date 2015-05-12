@@ -128,6 +128,8 @@ public class ReedMuller {
         return word;
     }
 
+    public
+
     public static void main(String[] args) {
         int r = 3;
         ReedMuller rm = new ReedMuller(r);
