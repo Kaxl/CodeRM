@@ -128,7 +128,27 @@ public class ReedMuller {
         return word;
     }
 
-    public
+    /**
+     * Alter an encoded word.
+     *
+     * We generate a random number for each bit of the word and if the
+     * generated number is lower than the line, we flip the bit at the position i.
+     *
+     * @param mot  The encoded word.
+     * @param line  The line that we want our word altered.
+     * @return      The altered word.
+     */
+    public BigInteger alteration (BigInteger mot, float line) {
+        Random random = new Random();
+
+        for (int i = 0; i < mot.bitCount(); i++) {
+            if (line > random.nextFloat()) {
+                mot = mot.flipBit(i);
+            }
+        }
+
+        return mot;
+    }
 
     public static void main(String[] args) {
         int r = 3;

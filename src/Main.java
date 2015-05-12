@@ -5,6 +5,11 @@ import java.math.*;
 public class Main {
 
 	public static void main(String[] args) throws IOException {
+
+
+
+
+
 	   // permet de prendre les entrées pour le menu
 	   // soit du clavier, d'un fichier ou de la ligne de commande		    
 		Scanner in;
