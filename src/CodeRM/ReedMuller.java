@@ -32,6 +32,13 @@ import java.math.BigInteger;
  *  - In the theory bit 0 is in the left. (x0, x1, x2, x3)
  *  - In practice, bit 0 is in the right. (x3, x2, x1, x0)
  *
+ * Warning :
+ *  - Encoding and decoding of image is done on a buffer.
+ *    - To load an image, use 'ParsePGM.read(filename)'
+ *    - To save an image (buffer), use 'ParsePGM.writeString(filename, buffer)'
+ *
+ *  It has been done that way because of the 'Main.java', which was imposed and already done that way.
+ *
  * @author  Axel Fahy
  * @author  Rudolf Höhn
  *
@@ -120,21 +127,18 @@ public class ReedMuller {
 
     /**
      * Encode a file.
+     * The content of the file is already in a String.
      *
      * Run overs each value of the PGM image.
      * Each value is separated by a space.
      *
-     * @param filename  The filename of the image to encode.
-     * @return  The file containing the encoded image.
+     * @param buffer The content of the image to encode.
+     * @return The encoded image in a String.
      */
-    public File encode(String filename) {
-        String header = ParsePGM.readHeader(filename) ;
-        String header2 = ParsePGM.readHeader2(ParsePGM.read(filename)) ;
-
-        String data = ParsePGM.readData(filename);
+    public String encode(String buffer) {
+        String header = ParsePGM.readHeader(buffer);
+        String data = ParsePGM.readData(buffer);
         String output = "";
-        File newFile = new File(filename + "_encoded");
-        newFile.delete();
 
         for (String s : data.split(" ")) {
             // Exclude whitespaces
@@ -144,10 +148,7 @@ public class ReedMuller {
                 output += " ";
             }
         }
-        // Write the header and the encoded data into the new file.
-        ParsePGM.writeString(newFile, header);
-        ParsePGM.writeString(newFile, output);
-        return newFile;
+        return header + output;
     }
 
     /**
@@ -181,19 +182,18 @@ public class ReedMuller {
 
     /**
      * Decode a file.
+     * The content of the file is already in a String.
      *
      * Run overs each values of the encoded file
      * and decodes them.
      *
-     * @param filename The file to decode.
-     * @return The decoded file.
+     * @param buffer The content of the file to decode.
+     * @return The decoded file in a string.
      */
-    public File decode(String filename) {
-        String header = ParsePGM.readHeader(filename) ;
-        String data = ParsePGM.readData(filename);
+    public String decode(String buffer) {
+        String header = ParsePGM.readHeader(buffer);
+        String data = ParsePGM.readData(buffer);
         String output = "";
-        File newFile = new File(filename + "_decoded");
-        newFile.delete();
 
         for (String s : data.split(" ")) {
             // Exclude whitespaces
@@ -203,10 +203,7 @@ public class ReedMuller {
                 output += " ";
             }
         }
-        // Write the header and the encoded data into the new file.
-        ParsePGM.writeString(newFile, header);
-        ParsePGM.writeString(newFile, output);
-        return newFile;
+        return header + output;
     }
 
     public static void main(String[] args) {
@@ -227,8 +224,10 @@ public class ReedMuller {
         System.out.println("Code : " + code.toString(2) + " Word : " + word.toString(2));
 
         System.out.println("Encode and decode an image :");
-        File fEncode = rm.encode("lena_128x128_64.pgm");
-        File fDecode = rm.decode(fEncode.getName());
+        String buffer = ParsePGM.read("lena_128x128_64.pgm");
+        String sEncoded = rm.encode(buffer);
+        String sDecoded = rm.decode(sEncoded);
+        ParsePGM.writeString("lena_encoded_decoded.pgm", sDecoded);
         System.out.println("Done");
     }
 

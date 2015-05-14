@@ -56,12 +56,13 @@ public class ParsePGM {
     }
 
     /**
+     * NOT USED
      * Method to get the header of a PGM file.
      *
      * @param filename The file to parse.
      * @return A string containing the header.
      */
-    public static String readHeader(String filename) {
+    public static String readHeaderFile(String filename) {
         String header = "";
         try {
             BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -96,7 +97,7 @@ public class ParsePGM {
      * @param s The string to parse.
      * @return A string containing the header.
      */
-    public static String readHeader2(String s) {
+    public static String readHeader(String s) {
         String header = "";
         try {
             BufferedReader br = new BufferedReader(new StringReader(s));
@@ -122,12 +123,13 @@ public class ParsePGM {
     }
 
     /**
+     * NOT USED
      * Method to get the data of a PGM file.
      *
      * @param filename The file to parse.
      * @return A string containing the data.
      */
-    public static String readData(String filename) {
+    public static String readDataFile(String filename) {
         String data = "";
         try {
             BufferedReader br = new BufferedReader(new FileReader(filename));
@@ -163,7 +165,7 @@ public class ParsePGM {
      * @param s The string to parse.
      * @return A string containing the data.
      */
-    public static String readData2(String s) {
+    public static String readData(String s) {
         String data = "";
         try {
             BufferedReader br = new BufferedReader(new StringReader(s));
@@ -182,9 +184,6 @@ public class ParsePGM {
                 line = br.readLine();
             }
             br.close();
-        }
-        catch (FileNotFoundException e) {
-            System.out.println("File not found.");
         }
         catch (IOException e) {
             e.printStackTrace();
@@ -195,12 +194,12 @@ public class ParsePGM {
     /**
      * Write a string at the end of a file.
      *
-     * @param f The file to write into.
+     * @param filename The name of the file.
      */
-    public static void writeString(File f, String s) {
+    public static void writeString(String filename, String s) {
         try {
             BufferedWriter bw = null;
-            bw = new BufferedWriter(new FileWriter(f, true));
+            bw = new BufferedWriter(new FileWriter(filename, true));
             bw.write(s);
             bw.newLine();
             bw.flush();

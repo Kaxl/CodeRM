@@ -1,4 +1,5 @@
 import CodeRM.ReedMuller;
+import Utilities.ParsePGM;
 
 import java.io.*;
 import java.util.*;
@@ -46,6 +47,7 @@ public class Main {
         int mode = in.nextInt();
 
         BigInteger mot = new BigInteger("0");
+        String buffer = "";
 
         // opération à effectuer sur le mot ou l'image
         String menu = "\nMenu opérations\n"
@@ -96,11 +98,11 @@ public class Main {
                 switch (choix) {
                     case 1:
                         // Encodage de l'image.
-                        rm.encode(fileName);
+                        buffer = rm.encode(buffer);
                         break;
                     case 2:
                         // Décodage de l'image.
-                        rm.decode(fileName);
+                        buffer = rm.decode(buffer);
                         break;
                     case 3:
                         // vos opérations pour le bruitage de l'image courante,
@@ -113,15 +115,17 @@ public class Main {
                         // Débruitage de l'image.
                         break;
                     case 5:
-                        System.err.println("Nom du fichier de l'image à charger (format png):");
+                        System.err.println("Nom du fichier de l'image à charger (format pgm):");
                         fileName = in.next();
-                        // lire le fichier contenant l'image pgm
+                        // Lecture de l'image et stockage dans le buffer.
+                        buffer = ParsePGM.read(fileName);
                         break;
                 }
                 if (choix != 5) {
-                    System.err.println("Nom du fichier où sauver l'image courante (format png):");
+                    System.err.println("Nom du fichier où sauver l'image courante (format pgm):");
                     fileName = in.next();
-                    // sauver l'image courante au format pgm
+                    // Sauve l'image courante (le buffer) au format pgm.
+                    ParsePGM.writeString(fileName, buffer);
                 }
                 System.err.println(menu);
                 choix = in.nextInt();
