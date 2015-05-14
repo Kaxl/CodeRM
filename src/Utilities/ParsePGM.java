@@ -27,6 +27,35 @@ import java.io.*;
 public class ParsePGM {
 
     /**
+     * Read a file and put it in a StringBuffer.
+     * Since this is a static method, it can be used without a class instance.
+     *
+     * @param filename  The filename to load.
+     * @return          The String.
+     */
+    public static String read(String filename) {
+        // Load the file into a String.
+        String text = "";
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(filename));
+            String line = br.readLine();
+
+            while (line != null) {
+                text += line;
+                text += "\n";
+                line = br.readLine();
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return text;
+    }
+
+    /**
      * Method to get the header of a PGM file.
      *
      * @param filename The file to parse.
@@ -61,6 +90,38 @@ public class ParsePGM {
     }
 
     /**
+     * Method to get the header of a PGM file.
+     * The content of the PGM file is already in a String.
+     *
+     * @param s The string to parse.
+     * @return A string containing the header.
+     */
+    public static String readHeader2(String s) {
+        String header = "";
+        try {
+            BufferedReader br = new BufferedReader(new StringReader(s));
+            String line = br.readLine();
+            // Get the headers
+            header += line;     // Put the first line into the header.
+            do {
+                line = br.readLine();
+                header += '\n';
+                header += line;
+            }
+            while (line != null && line.charAt(0) == '#');
+
+            // Get the two last lines of the header (size and gray level).
+            header += '\n';
+            header += br.readLine();
+            header += '\n';
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return header;
+    }
+
+    /**
      * Method to get the data of a PGM file.
      *
      * @param filename The file to parse.
@@ -70,6 +131,42 @@ public class ParsePGM {
         String data = "";
         try {
             BufferedReader br = new BufferedReader(new FileReader(filename));
+            String line = br.readLine();
+            // Skip the headers
+            do {
+                line = br.readLine();
+            } while (line != null && line.charAt(0) == '#');
+            br.readLine();
+
+            // Get the data
+            line = br.readLine();
+            while (line != null) {
+                data += line;
+                data += '\n';
+                line = br.readLine();
+            }
+            br.close();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("File not found.");
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        return data;
+    }
+
+    /**
+     * Method to get the data of a PGM file.
+     * The content of the PGM file is already in a String.
+     *
+     * @param s The string to parse.
+     * @return A string containing the data.
+     */
+    public static String readData2(String s) {
+        String data = "";
+        try {
+            BufferedReader br = new BufferedReader(new StringReader(s));
             String line = br.readLine();
             // Skip the headers
             do {

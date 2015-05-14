@@ -45,7 +45,7 @@ public class ReedMuller {
     private int r;
 
     /**
-     * Default constructor
+     * Constructor with the rang.
      */
     public ReedMuller(int rang) {
         this.r = rang;
@@ -71,8 +71,8 @@ public class ReedMuller {
      *  0 0 0 0 1 1 1 1
      *  1 1 1 1 1 1 1 1
      *
-     * @param word  The word to encode.
-     * @return      The encoded word.
+     * @param word The word to encode.
+     * @return The encoded word.
      */
     public BigInteger encode(BigInteger word) {
 
@@ -82,10 +82,8 @@ public class ReedMuller {
         for (int i = 0; i < length; i++) {
             // Conversion of i in binary.
             String iBinary = Integer.toBinaryString(i);
-            // Fill in with 0 if missing (0 at the end).
-            while (iBinary.length() < r) {
-                iBinary = "0" + iBinary;
-            }
+            // Fill in with 0 if missing (0 at the left).
+            iBinary = fillZeroLeft(iBinary);
             // Add "1" at the beginning.
             iBinary = "1" + iBinary;
             // Multiplication of the word by the column of the matrix.
@@ -104,6 +102,23 @@ public class ReedMuller {
     }
 
     /**
+     * Fill the rest of the string with '0'.
+     *
+     * For example, if we have the value 1 on three bits :
+     * Before   : "1"
+     * After    : "003"
+     *
+     * @param sBinary The string to fill with missing '0'
+     * @return The string with the '0' added at the left.
+     */
+    public String fillZeroLeft(String sBinary) {
+        while (sBinary.length() < r) {
+            sBinary = "0" + sBinary;
+        }
+        return sBinary;
+    }
+
+    /**
      * Encode a file.
      *
      * Run overs each value of the PGM image.
@@ -114,6 +129,8 @@ public class ReedMuller {
      */
     public File encode(String filename) {
         String header = ParsePGM.readHeader(filename) ;
+        String header2 = ParsePGM.readHeader2(ParsePGM.read(filename)) ;
+
         String data = ParsePGM.readData(filename);
         String output = "";
         File newFile = new File(filename + "_encoded");
@@ -122,7 +139,7 @@ public class ReedMuller {
         for (String s : data.split(" ")) {
             // Exclude whitespaces
             if (s.trim().length() > 0) {
-                BigInteger word = new BigInteger(s);
+                BigInteger word = new BigInteger(s.trim());
                 output += this.encode(word).toString();
                 output += " ";
             }
@@ -131,6 +148,35 @@ public class ReedMuller {
         ParsePGM.writeString(newFile, header);
         ParsePGM.writeString(newFile, output);
         return newFile;
+    }
+
+    /**
+     * Decode an encoded word.
+     *
+     * We check the first bit (at the left) of the coded word.
+     * If this is a "1", we need to inverse it before running the algorithm.
+     *
+     * Then, for each power of two with the power smaller than r, we get the value of the position,
+     * and affect if to the word.
+     *
+     * @param code The encoded word.
+     * @return The decoded word.
+     */
+    public BigInteger decode(BigInteger code) {
+        BigInteger word = new BigInteger("0");
+
+        // Check for the first bit.
+        // If 1, inverse all bits and first bit from left is 1 (last bit).
+        if (code.testBit(0)) {
+            code = code.not();
+            word = word.setBit(r);
+        }
+
+        // Get values of power 2 positions.
+        for (int i = 0; i < r; i++) {
+            word = code.testBit((int)Math.pow(2, i)) ? word.setBit(i) : word.clearBit(i);
+        }
+        return word;
     }
 
     /**
@@ -163,36 +209,6 @@ public class ReedMuller {
         return newFile;
     }
 
-    /**
-     * Decode an encoded word.
-     *
-     * We check the first bit (at the left) of the coded word.
-     * If this is a "1", we need to inverse it before running the algorithm.
-     *
-     * Then, for each power of two with the power smaller than r, we get the value of the position,
-     * and affect if to the word.
-     *
-     * @param code  The encoded word.
-     * @return      The decoded word.
-     */
-    public BigInteger decode(BigInteger code) {
-        BigInteger word = new BigInteger("0");
-
-        // Check for the first bit.
-        // If 1, inverse all bits and first bit from left is 1 (last bit).
-        if (code.testBit(0)) {
-            code = code.not();
-            word = word.setBit(r);
-        }
-
-        // Get values of power 2 positions.
-        for (int i = 0; i < r; i++) {
-            word = code.testBit((int)Math.pow(2, i)) ? word.setBit(i) : word.clearBit(i);
-        }
-        return word;
-    }
-
-
     public static void main(String[] args) {
         int r = 5;
         ReedMuller rm = new ReedMuller(r);
@@ -201,6 +217,7 @@ public class ReedMuller {
         BigInteger word = new BigInteger("2");
         BigInteger code = rm.encode(word);
 
+        System.out.println("Encode and decode a word :");
         System.out.println("Word : " + word.toString(2) + " Code : " + code.toString(2));
 
         // Decoding
@@ -209,8 +226,10 @@ public class ReedMuller {
 
         System.out.println("Code : " + code.toString(2) + " Word : " + word.toString(2));
 
+        System.out.println("Encode and decode an image :");
         File fEncode = rm.encode("lena_128x128_64.pgm");
         File fDecode = rm.decode(fEncode.getName());
+        System.out.println("Done");
     }
 
 }
