@@ -5,8 +5,16 @@ import Utilities.ParsePGM;
 import java.math.BigInteger;
 import java.util.Random;
 
+
 /**
- * Created by rudy on 19.05.15.
+ * Class to alter images or words in BigInteger.
+ *
+ * The alteration is done following a line.
+ *
+ * @author  Axel Fahy
+ * @author  Rudolf Höhn
+ *
+ * @version 19.05.2015
  */
 public class Alteration {
 
@@ -33,14 +41,11 @@ public class Alteration {
     }
 
     /**
-     * Alter an encoded word.
-     *
-     * We generate a random number for each bit of the word and if the
-     * generated number is lower than the line, we flip the bit at the position i.
+     * Alter an image using the method to alter a word.
      *
      * @param buffer  The image.
      * @param line  The line that we want our word altered.
-     * @return      The altered word.
+     * @return      The altered image.
      */
     public static String alter(String buffer, double line) {
         String header = ParsePGM.readHeader(buffer);
