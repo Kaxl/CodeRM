@@ -20,6 +20,8 @@ import java.io.*;
  *      - The line containing the size of the image.
  *      - The line containing the gray level.
  *
+ *  Each value is separated by a space.
+ *
  * @author  Axel Fahy
  *
  * @version 12.05.2015

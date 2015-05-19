@@ -72,14 +72,10 @@ public class Main {
                         mot = rm.decode(mot);
                         break;
                     case 3:
-                        // vos opérations pour le bruitage du mot courant,
-                        // ne rien afficher sur la sortie standard
                         // Bruitage d'un mot.
                         mot = Alteration.alter(mot, seuil);
                         break;
                     case 4:
-                        // vos opérations pour le débruitage du mot courant,
-                        // ne rien afficher sur la sortie standard
                         // Débruitage d'un mot.
                         mot = rm.unalter(mot);
                         break;
@@ -108,14 +104,10 @@ public class Main {
                         buffer = rm.decode(buffer);
                         break;
                     case 3:
-                        // vos opérations pour le bruitage de l'image courante,
-                        // ne rien afficher sur la sortie standard
                         // Bruitage de l'image.
                         buffer = Alteration.alter(buffer, seuil);
                         break;
                     case 4:
-                        // vos opérations pour le débruitage de l'image courante,
-                        // ne rien afficher sur la sortie standard
                         // Débruitage de l'image.
                         buffer = rm.unalter(buffer);
                         break;
@@ -130,7 +122,6 @@ public class Main {
                     System.err.println("Nom du fichier où sauver l'image courante (format pgm):");
                     fileName = in.next();
                     // Sauve l'image courante (le buffer) au format pgm le supprime avant.
-
                     ParsePGM.writeString(fileName, buffer);
                 }
                 System.err.println(menu);

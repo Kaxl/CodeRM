@@ -244,11 +244,11 @@ public class ReedMuller {
      */
     public BigInteger unalter (BigInteger mot) {
 
-        // transformer le mot en string pour avoir tous les 0 qu'il faut
+        // Transformer le mot en string pour avoir tous les 0 qu'il faut.
         String motBinary = mot.toString(2);
         motBinary = fillZeroLeft(motBinary, (int)Math.pow(2, r));
 
-        // stocker le mot dans un arrayList avec des -1 à la place des 1 et des 1 à la places des 0
+        // Stocker le mot dans un ArrayList avec des -1 à la place des 1 et des 1 à la places des 0.
         ArrayList<Integer> F = new ArrayList<>();
         for (int i = 0; i < motBinary.length(); i++) {
             if (motBinary.charAt(i) == '1') {
@@ -265,12 +265,11 @@ public class ReedMuller {
         for (int n = r - 1; n >= 0; n--) { // K
             ArrayList<Integer> Ftmp = new ArrayList<>();
             for (int i = 0; i < Math.pow(2, r); i++) { // Position (colonne) dans K
-
-                // transorme en i en binaire
+                // Transfrome  i en binaire.
                 iBinary = Integer.toBinaryString(i);
                 iBinary = fillZeroLeft(iBinary, r);
 
-                // recupere la posj de i
+                // Récupère suivant le K, le nième bit de i.
                 int posK = Integer.parseInt(Character.toString(iBinary.charAt(r - 1 - n)));
 
                 // les tests et additions
@@ -281,19 +280,19 @@ public class ReedMuller {
                     Ftmp.add(F.get(i) + F.get(i + (int)Math.pow(2, n)));
                 }
             }
-            F = Ftmp;
+            F = Ftmp;   // F est mis à jour. C'est ce F qui sera utilisé pour le K suivant.
         }
 
-        // on trouve la maximum en valeur absolue
+        // On trouve le maximum en valeur absolue.
         ArrayList<Integer> Fpositif = new ArrayList<>();
         for (Integer i : F) {
             Fpositif.add(Math.abs(i));
         }
 
-        // on trouve la maximum de Fpositif
+        // On trouve la maximum de Fpositif.
         int maxF = Collections.max(Fpositif);
 
-        // on trouve la valeur decode et debruitee
+        // On trouve la valeur décodé et débruitée.
         int motDebruiteEtDecode;
         int posMaxF = Fpositif.indexOf(maxF);
 
@@ -304,7 +303,7 @@ public class ReedMuller {
             motDebruiteEtDecode = posMaxF;
         }
 
-        // on retourne le mot encode (et oui on fait le travail trop vite)
+        // On retourne le mot encodé.
         return this.encode(new BigInteger(String.valueOf(motDebruiteEtDecode)));
     }
 
