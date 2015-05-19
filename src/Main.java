@@ -129,7 +129,8 @@ public class Main {
                 if (choix != 5) {
                     System.err.println("Nom du fichier où sauver l'image courante (format pgm):");
                     fileName = in.next();
-                    // Sauve l'image courante (le buffer) au format pgm.
+                    // Sauve l'image courante (le buffer) au format pgm le supprime avant.
+
                     ParsePGM.writeString(fileName, buffer);
                 }
                 System.err.println(menu);

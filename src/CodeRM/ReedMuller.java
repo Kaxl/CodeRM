@@ -6,6 +6,7 @@ import Alteration.Alteration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.math.BigInteger;
+import java.util.InputMismatchException;
 
 /**
  * Class to implement the Reed-Muller code (RM(1, r) -> First order, length r).
@@ -92,7 +93,7 @@ public class ReedMuller {
             // Conversion of i in binary.
             String iBinary = Integer.toBinaryString(i);
             // Fill in with 0 if missing (0 at the left).
-            iBinary = fillZeroLeft(iBinary);
+            iBinary = fillZeroLeft(iBinary, r);
             // Add "1" at the beginning.
             iBinary = "1" + iBinary;
             // Multiplication of the word by the column of the matrix.
@@ -118,10 +119,11 @@ public class ReedMuller {
      * After    : "003"
      *
      * @param sBinary The string to fill with missing '0'
+     * @param length  The length of the binary value.
      * @return The string with the '0' added at the left.
      */
-    public String fillZeroLeft(String sBinary) {
-        while (sBinary.length() < r) {
+    public String fillZeroLeft(String sBinary, int length) {
+        while (sBinary.length() < length) {
             sBinary = "0" + sBinary;
         }
         return sBinary;
@@ -244,9 +246,7 @@ public class ReedMuller {
 
         // transformer le mot en string pour avoir tous les 0 qu'il faut
         String motBinary = mot.toString(2);
-        while (motBinary.length() < Math.pow(2, r)) {
-            motBinary = "0" + motBinary;
-        }
+        motBinary = fillZeroLeft(motBinary, (int)Math.pow(2, r));
 
         // stocker le mot dans un arrayList avec des -1 à la place des 1 et des 1 à la places des 0
         ArrayList<Integer> F = new ArrayList<>();
@@ -260,33 +260,28 @@ public class ReedMuller {
         }
 
         String iBinary;
-        ArrayList<Integer> Ftmp = new ArrayList<>();
 
         // Boucle de n à 1 pour k
         for (int n = r - 1; n >= 0; n--) { // K
+            ArrayList<Integer> Ftmp = new ArrayList<>();
             for (int i = 0; i < Math.pow(2, r); i++) { // Position (colonne) dans K
 
                 // transorme en i en binaire
                 iBinary = Integer.toBinaryString(i);
-                while (iBinary.length() < r) {
-                    iBinary = "0" + iBinary;
-                }
+                iBinary = fillZeroLeft(iBinary, r);
 
                 // recupere la posj de i
                 int posK = Integer.parseInt(Character.toString(iBinary.charAt(r - 1 - n)));
 
                 // les tests et additions
                 if (posK == 1) {
-                    Ftmp.add(F.get(i - (int)Math.pow(2, n)) + F.get(i) * (-1));
+                    Ftmp.add(F.get(i) - F.get(i - (int)Math.pow(2, n)));
                 }
                 else {
                     Ftmp.add(F.get(i) + F.get(i + (int)Math.pow(2, n)));
                 }
-
             }
-
-            F = new ArrayList<Integer>(Ftmp);
-            Ftmp.clear();
+            F = Ftmp;
         }
 
         // on trouve la maximum en valeur absolue
@@ -318,33 +313,42 @@ public class ReedMuller {
         ReedMuller rm = new ReedMuller(r);
 
         // Encoding
-        BigInteger word = new BigInteger("2");
+        //BigInteger word = new BigInteger("33");
+        BigInteger word = new BigInteger("13");
         BigInteger code = rm.encode(word);
+        BigInteger codeB = Alteration.alter(code, 0.9);
+        //BigInteger codeB = new BigInteger()"1010010100011010";
+        //BigInteger codeB = new BigInteger("42266");
+        BigInteger codeUB = rm.unalter(codeB);
+        BigInteger wordEnd = rm.decode(codeUB);
+        //BigInteger wordEnd = rm.decode(code);
 
-        System.out.println("Encode and decode a word :");
-        System.out.println("Word : " + word.toString(2) + " Code : " + code.toString(2));
+        System.out.println("Word    : " + word +    " Word    : " + word.toString(2));
+        System.out.println("Code    : " + code +    " Code    : " + code.toString(2));
+        System.out.println("CodeB   : " + codeB +   " CodeB   : " + codeB.toString(2));
+        System.out.println("CodeUB  : " + codeUB +   " CodeUB  : " + codeUB.toString(2));
+        System.out.println("wordEnd : " + wordEnd + " wordEnd : " + wordEnd.toString(2));
 
-        BigInteger codeAlter = Alteration.alter(code, 0.3);
-        System.out.println("Word alter : " + codeAlter.toString(2));
-        BigInteger codeUnAlter = rm.unalter(codeAlter);
-        System.out.println("Word unalter : " + codeUnAlter.toString(2));
-
-        // Decoding
-        //code = new BigInteger("11");
-        word = rm.decode(codeUnAlter);
-        BigInteger word2 = rm.decode(code);
-
-        System.out.println("Code : " + code.toString(2) + " Word : " + word.toString(2));
 
         System.out.println("Encode and decode an image :");
-        String buffer = ParsePGM.read("lena_128x128_64.pgm");
-        String sEncoded = rm.encode(buffer);
+        //r = 5;
+        //String buffer = ParsePGM.read("lena_128x128_64.pgm");
+        //String sEncoded = rm.encode(buffer);
+        //String sEncodedAlter = Alteration.alter(sEncoded, 0.3);
+        //String sEncodedUnalter = rm.unalter(sEncodedAlter);
+        //String sDecoded = rm.decode(sEncodedUnalter);
+        //ParsePGM.writeString("lena_encoded_decoded.pgm", sDecoded);
 
-        String sDecoded = rm.decode(sEncoded);
-        ParsePGM.writeString("lena_encoded_decoded.pgm", sDecoded);
+
+        r = 5;
+        String sMarsAlter = ParsePGM.read("mars_crat.enc.alt");
+        //String sMarsAlter = ParsePGM.read("mars-crat.enc.alt_0.07");
+        //String sMarsAlter = ParsePGM.read("mars_decoded.pgm");
+        //String sMarsAlter = ParsePGM.read("mars-crat.enc.alt_0.10");
+        String sMarsUnalter = rm.unalter(sMarsAlter);
+        String sMarsDecoded = rm.decode(sMarsUnalter);
+        ParsePGM.writeString("mars_decoded.pgm", sMarsDecoded);
         System.out.println("Done");
-        System.out.println("Code : " + code.toString(2) + " Word2 : " + word2.toString(2));
-
 
     }
 
