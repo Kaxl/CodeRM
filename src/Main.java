@@ -1,3 +1,4 @@
+import Alteration.Alteration;
 import CodeRM.ReedMuller;
 import Utilities.ParsePGM;
 
@@ -74,11 +75,13 @@ public class Main {
                         // vos opérations pour le bruitage du mot courant,
                         // ne rien afficher sur la sortie standard
                         // Bruitage d'un mot.
+                        mot = Alteration.alter(mot, seuil);
                         break;
                     case 4:
                         // vos opérations pour le débruitage du mot courant,
                         // ne rien afficher sur la sortie standard
                         // Débruitage d'un mot.
+                        mot = rm.unalter(mot);
                         break;
                     case 5:
                         System.err.println("\nEntrer un mot (en décimal)");
@@ -108,11 +111,13 @@ public class Main {
                         // vos opérations pour le bruitage de l'image courante,
                         // ne rien afficher sur la sortie standard
                         // Bruitage de l'image.
+                        buffer = Alteration.alter(buffer, seuil);
                         break;
                     case 4:
                         // vos opérations pour le débruitage de l'image courante,
                         // ne rien afficher sur la sortie standard
                         // Débruitage de l'image.
+                        buffer = rm.unalter(buffer);
                         break;
                     case 5:
                         System.err.println("Nom du fichier de l'image à charger (format pgm):");

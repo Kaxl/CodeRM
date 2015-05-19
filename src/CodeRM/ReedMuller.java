@@ -1,12 +1,11 @@
 package CodeRM;
 
 import Utilities.ParsePGM;
+import Alteration.Alteration;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.math.BigInteger;
-import java.util.Random;
 
 /**
  * Class to implement the Reed-Muller code (RM(1, r) -> First order, length r).
@@ -210,36 +209,38 @@ public class ReedMuller {
     }
 
     /**
-     * Alter an encoded word.
+     * Unaltered an encoded image.
      *
-     * We generate a random number for each bit of the word and if the
-     * generated number is lower than the line, we flip the bit at the position i.
+     * This method uses the Fourier algorithm.
      *
-     * @param mot  The encoded word.
-     * @param line  The line that we want our word altered.
-     * @return      The altered word.
+     * @param buffer  The altered image.
+     * @return      The unaltered word.
      */
-    public BigInteger alteration (BigInteger mot, double line) {
-        Random random = new Random();
+    public String unalter (String buffer) {
+        String header = ParsePGM.readHeader(buffer);
+        String data = ParsePGM.readData(buffer);
+        String output = "";
 
-        for (int i = 0; i < mot.bitCount(); i++) {
-            if (line > random.nextFloat()) {
-                mot = mot.flipBit(i);
+        for (String s : data.split(" ")) {
+            // Exclude whitespaces
+            if (s.trim().length() > 0) {
+                BigInteger word = new BigInteger(s.trim());
+                output += this.unalter(word).toString();
+                output += " ";
             }
         }
-
-        return mot;
+        return header + output;
     }
 
     /**
      * Unaltered an encoded word.
      *
-     *
+     * This method uses the Fourier algorithm.
      *
      * @param mot  The altered word.
      * @return      The unaltered word.
      */
-    public BigInteger unalteration (BigInteger mot) {
+    public BigInteger unalter (BigInteger mot) {
 
         // transformer le mot en string pour avoir tous les 0 qu'il faut
         String motBinary = mot.toString(2);
@@ -323,9 +324,9 @@ public class ReedMuller {
         System.out.println("Encode and decode a word :");
         System.out.println("Word : " + word.toString(2) + " Code : " + code.toString(2));
 
-        BigInteger codeAlter = rm.alteration(code, 0.3);
+        BigInteger codeAlter = Alteration.alter(code, 0.3);
         System.out.println("Word alter : " + codeAlter.toString(2));
-        BigInteger codeUnAlter = rm.unalteration(codeAlter);
+        BigInteger codeUnAlter = rm.unalter(codeAlter);
         System.out.println("Word unalter : " + codeUnAlter.toString(2));
 
         // Decoding
@@ -338,6 +339,7 @@ public class ReedMuller {
         System.out.println("Encode and decode an image :");
         String buffer = ParsePGM.read("lena_128x128_64.pgm");
         String sEncoded = rm.encode(buffer);
+
         String sDecoded = rm.decode(sEncoded);
         ParsePGM.writeString("lena_encoded_decoded.pgm", sDecoded);
         System.out.println("Done");
