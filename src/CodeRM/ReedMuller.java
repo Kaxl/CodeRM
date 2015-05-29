@@ -6,7 +6,6 @@ import Alteration.Alteration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.math.BigInteger;
-import java.util.InputMismatchException;
 
 /**
  * Class to implement the Reed-Muller code (RM(1, r) -> First order, length r).
@@ -112,6 +111,32 @@ public class ReedMuller {
     }
 
     /**
+     * Encode a file.
+     * The content of the file is already in a String.
+     *
+     * Run overs each value of the PGM image.
+     * Each value is separated by a space.
+     *
+     * @param buffer The content of the image to encode.
+     * @return The encoded image in a String.
+     */
+    public String encode(String buffer) {
+        String header = ParsePGM.readHeader(buffer);
+        String data = ParsePGM.readData(buffer);
+        String output = "";
+
+        for (String s : data.split("\\s+")) {
+            // Exclude whitespaces
+            if (s.trim().length() > 0) {
+                BigInteger word = new BigInteger(s.trim());
+                output += this.encode(word).toString();
+                output += " ";
+            }
+        }
+        return header + output;
+    }
+
+    /**
      * Fill the rest of the string with '0'.
      *
      * For example, if we have the value 1 on three bits :
@@ -130,29 +155,20 @@ public class ReedMuller {
     }
 
     /**
-     * Encode a file.
-     * The content of the file is already in a String.
+     * Get a BigInteger from a String.
      *
-     * Run overs each value of the PGM image.
-     * Each value is separated by a space.
+     * If the value is negative, adapt the BigInteger.
      *
-     * @param buffer The content of the image to encode.
-     * @return The encoded image in a String.
+     * @param value     Value in a string.
+     * @param length    Number of bits.
+     * @return          The BigInteger from the string.
      */
-    public String encode(String buffer) {
-        String header = ParsePGM.readHeader(buffer);
-        String data = ParsePGM.readData(buffer);
-        String output = "";
-
-        for (String s : data.split(" ")) {
-            // Exclude whitespaces
-            if (s.trim().length() > 0) {
-                BigInteger word = new BigInteger(s.trim());
-                output += this.encode(word).toString();
-                output += " ";
-            }
+    public BigInteger getBigInteger(String value, int length) {
+        BigInteger word = new BigInteger(value);
+        if (word.compareTo(BigInteger.ZERO) < 0) {
+            word = word.add(BigInteger.ONE.shiftLeft(length));
         }
-        return header + output;
+        return word;
     }
 
     /**
@@ -199,10 +215,11 @@ public class ReedMuller {
         String data = ParsePGM.readData(buffer);
         String output = "";
 
-        for (String s : data.split(" ")) {
+        for (String s : data.split("\\s+")) {
             // Exclude whitespaces
             if (s.trim().length() > 0) {
-                BigInteger word = new BigInteger(s.trim());
+                //BigInteger word = new BigInteger(s.trim());
+                BigInteger word = getBigInteger(s.trim(), (int)Math.pow(2, r));
                 output += this.decode(word).toString();
                 output += " ";
             }
@@ -223,10 +240,11 @@ public class ReedMuller {
         String data = ParsePGM.readData(buffer);
         String output = "";
 
-        for (String s : data.split(" ")) {
+        for (String s : data.split("\\s+")) {
             // Exclude whitespaces
             if (s.trim().length() > 0) {
-                BigInteger word = new BigInteger(s.trim());
+                //BigInteger word = new BigInteger(s.trim());
+                BigInteger word = getBigInteger(s.trim(), (int)Math.pow(2, r));
                 output += this.unalter(word).toString();
                 output += " ";
             }
@@ -249,7 +267,7 @@ public class ReedMuller {
         motBinary = fillZeroLeft(motBinary, (int)Math.pow(2, r));
 
         // Stocker le mot dans un ArrayList avec des -1 à la place des 1 et des 1 à la places des 0.
-        ArrayList<Integer> F = new ArrayList<>();
+        ArrayList<Integer> F = new ArrayList<Integer>();
         for (int i = 0; i < motBinary.length(); i++) {
             if (motBinary.charAt(i) == '1') {
                 F.add(-1);
@@ -263,7 +281,7 @@ public class ReedMuller {
 
         // Boucle de n à 1 pour k
         for (int n = r - 1; n >= 0; n--) { // K
-            ArrayList<Integer> Ftmp = new ArrayList<>();
+            ArrayList<Integer> Ftmp = new ArrayList<Integer>();
             for (int i = 0; i < Math.pow(2, r); i++) { // Position (colonne) dans K
                 // Transfrome  i en binaire.
                 iBinary = Integer.toBinaryString(i);
@@ -284,7 +302,7 @@ public class ReedMuller {
         }
 
         // On trouve le maximum en valeur absolue.
-        ArrayList<Integer> Fpositif = new ArrayList<>();
+        ArrayList<Integer> Fpositif = new ArrayList<Integer>();
         for (Integer i : F) {
             Fpositif.add(Math.abs(i));
         }
@@ -312,15 +330,11 @@ public class ReedMuller {
         ReedMuller rm = new ReedMuller(r);
 
         // Encoding
-        //BigInteger word = new BigInteger("33");
         BigInteger word = new BigInteger("13");
         BigInteger code = rm.encode(word);
-        BigInteger codeB = Alteration.alter(code, 0.9);
-        //BigInteger codeB = new BigInteger()"1010010100011010";
-        //BigInteger codeB = new BigInteger("42266");
+        BigInteger codeB = Alteration.alter(code, 0.3);
         BigInteger codeUB = rm.unalter(codeB);
         BigInteger wordEnd = rm.decode(codeUB);
-        //BigInteger wordEnd = rm.decode(code);
 
         System.out.println("Word    : " + word +    " Word    : " + word.toString(2));
         System.out.println("Code    : " + code +    " Code    : " + code.toString(2));
@@ -330,20 +344,18 @@ public class ReedMuller {
 
 
         System.out.println("Encode and decode an image :");
-        //r = 5;
-        //String buffer = ParsePGM.read("lena_128x128_64.pgm");
-        //String sEncoded = rm.encode(buffer);
-        //String sEncodedAlter = Alteration.alter(sEncoded, 0.3);
-        //String sEncodedUnalter = rm.unalter(sEncodedAlter);
-        //String sDecoded = rm.decode(sEncodedUnalter);
-        //ParsePGM.writeString("lena_encoded_decoded.pgm", sDecoded);
+        r = 5;
+        String buffer = ParsePGM.read("lena_128x128_64.pgm");
+        String sEncoded = rm.encode(buffer);
+        String sDecoded = rm.decode(sEncoded);
+        ParsePGM.writeString("lena_encoded_decoded.pgm", sDecoded);
 
 
         r = 5;
-        String sMarsAlter = ParsePGM.read("mars_crat.enc.alt");
-        //String sMarsAlter = ParsePGM.read("mars-crat.enc.alt_0.07");
-        //String sMarsAlter = ParsePGM.read("mars_decoded.pgm");
+        //String sMarsAlter = ParsePGM.read("mars_crat.enc.alt");
+        String sMarsAlter = ParsePGM.read("mars-crat.enc.alt_0.07");
         //String sMarsAlter = ParsePGM.read("mars-crat.enc.alt_0.10");
+        //String sMarsAlter = ParsePGM.read("mars_decoded.pgm");
         String sMarsUnalter = rm.unalter(sMarsAlter);
         String sMarsDecoded = rm.decode(sMarsUnalter);
         ParsePGM.writeString("mars_decoded.pgm", sMarsDecoded);
